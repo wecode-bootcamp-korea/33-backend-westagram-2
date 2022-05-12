@@ -1,26 +1,20 @@
-
 from pathlib import Path
+
 from my_settings import SECRET_KEY, DATABASES
 
-# import pymysql
+import pymysql
     
-# pymysql.install_as_MySQLdb()
+pymysql.install_as_MySQLdb()
 
 ALLOWED_HOSTS = ['*']
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-
 SECRET_KEY = SECRET_KEY
-
 
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
-
-
 
 INSTALLED_APPS = [
     # 'django.contrib.admin',
@@ -58,7 +52,7 @@ CORS_ALLOW_METHODS = (
     'POST',
     'PUT',
 )
-    
+
 CORS_ALLOW_HEADERS = (
     'accept',
     'accept-encoding',
@@ -71,10 +65,6 @@ CORS_ALLOW_HEADERS = (
     'x-requested-with',    		
 )
 # 여기까지
-
-
-
-
 
 ROOT_URLCONF = 'westagram.urls'
 
@@ -96,14 +86,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'westagram.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
 DATABASES = DATABASES
-
-# Password validation
-# https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -120,10 +103,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/4.0/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -132,13 +111,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.0/howto/static-files/
-
 STATIC_URL = 'static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
