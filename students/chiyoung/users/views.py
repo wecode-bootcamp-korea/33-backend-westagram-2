@@ -1,4 +1,4 @@
-import json
+import json, re
 
 from django.views import View
 from django.http import JsonResponse
@@ -11,10 +11,21 @@ class SignupView(View):
         
         try :
             signup_data = json.loads(request.body)
-        
+
+            # 이메일 유효성 검사        
             if "@" not in signup_data["email"] or "." not in signup_data["email"] :
                 return JsonResponse({'MESSAGE' : 'INVALID_EMAIL'}, status = 400)
 
+            # 비밀번호 유효성 검사
+            if len(signup_data["password"]) < 8 :
+                return JsonResponse({'MESSAGE' : 'INVALID_PASSWORD : 비밀번호는 최소 8자리 이상'}, status = 400)
+            if re.search('[a-zA-Z]+', signup_data["password"]) is None :
+                return JsonResponse({'MESSAGE' : 'INVALID_PASSWORD : 비밀번호는 최소 1개 이상의 문자 포함'}, status = 400)
+            if re.search('[0-9]+', signup_data["password"]) is None :
+               return JsonResponse({'MESSAGE' : 'INVALID_PASSWORD : 비밀번호는 최소 1개 이상의 숫자 포함'}, status = 400)
+            if re.search('[`~!@#$%^&*(),<.>/?]+', signup_data["password"]) is None :
+               return JsonResponse({'MESSAGE' : 'INVALID_PASSWORD : 비밀번호는 최소 1개 이상의 특수문자 포함'}, status = 400)
+            
             account = Accounts.objects.create(
             name         = signup_data["name"],
             email        = signup_data["email"],
