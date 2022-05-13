@@ -7,10 +7,15 @@ from .models import Accounts
 
 
 class SignupView(View):
-    
     def post(self, request):
-        signup_data = json.loads(request.body)
-        account = Accounts.objects.create(
+        signup_data = json.loads(request.body) # dictionary type
+        
+        try :
+            if Accounts.objects.filter(email=signup_data["email"]).exists():
+                return JsonResponse({"message" : "KEY_ERROR"}, status = 400)
+        
+        except :
+            account = Accounts.objects.create(
             name         = signup_data["name"],
             email        = signup_data["email"],
             password     = signup_data["password"],
