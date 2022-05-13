@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from my_settings import DATABASES, SECRET_KEY
 
 import pymysql
