@@ -3,7 +3,7 @@ from pathlib import Path
 from my_settings import SECRET_KEY, DATABASES
 
 import pymysql
-    
+
 pymysql.install_as_MySQLdb()
 
 
@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders', # 추가
     'django_extensions', # 추가
+    'users',
 ]
 
 MIDDLEWARE = [
