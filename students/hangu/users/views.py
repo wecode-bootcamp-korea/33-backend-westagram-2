@@ -43,5 +43,7 @@ class SignupView(View):
                 return JsonResponse({"message": "SUCCESS"}, status = 201)
             return  JsonResponse({"message":"이메일이 중복입니다"}, status=400)   
             
-        except Exception as e:
-            return JsonResponse({"message": e }, status = 500)    
+        except KeyError:
+            return JsonResponse({"message": 'KeyError'}, status = 400)   
+
+
