@@ -1,40 +1,44 @@
-import json, re
+import json
 
 from django.views import View
 from django.http import JsonResponse
+from django.core.exceptions import ValidationError
 
 from .models import Accounts
-
+from .validators import validate_email, validate_password
 
 class SignupView(View):
     def post(self, request):
-        
+
         try :
             signup_data = json.loads(request.body)
 
-            # 이메일 유효성 검사        
-            if "@" not in signup_data["email"] or "." not in signup_data["email"] :
-                return JsonResponse({'MESSAGE' : 'INVALID_EMAIL'}, status = 400)
+            email        = signup_data["email"]
+            password     = signup_data["password"]
 
-            # 비밀번호 유효성 검사
-            if len(signup_data["password"]) < 8 :
-                return JsonResponse({'MESSAGE' : 'INVALID_PASSWORD : 비밀번호는 최소 8자리 이상'}, status = 400)
-            if re.search('[a-zA-Z]+', signup_data["password"]) is None :
-                return JsonResponse({'MESSAGE' : 'INVALID_PASSWORD : 비밀번호는 최소 1개 이상의 문자 포함'}, status = 400)
-            if re.search('[0-9]+', signup_data["password"]) is None :
-               return JsonResponse({'MESSAGE' : 'INVALID_PASSWORD : 비밀번호는 최소 1개 이상의 숫자 포함'}, status = 400)
-            if re.search('[`~!@#$%^&*(),<.>/?]+', signup_data["password"]) is None :
-               return JsonResponse({'MESSAGE' : 'INVALID_PASSWORD : 비밀번호는 최소 1개 이상의 특수문자 포함'}, status = 400)
+            if not validate_email(email) :
+                raise ValidationError("INVALID_EMAIL")
+
+            if not validate_password(password) :
+                raise ValidationError("INVALID_PASSWORD")
             
-            account = Accounts.objects.create(
-            name         = signup_data["name"],
-            email        = signup_data["email"],
-            password     = signup_data["password"],
-            phone_number = signup_data["phone_number"],
-            created_at   = signup_data["created_at"],
-            updated_at   = signup_data["updated_at"],
-        )
+            if Accounts.objects.filter(email=email).exists() :
+                raise ValidationError("EMAIL_ALREADY_EXIST")
+
+            Accounts.objects.create(
+                name         = signup_data["name"],
+                email        = email,
+                password     = password,
+                phone_number = signup_data["phone_number"]
+            )
+
+            return JsonResponse({"MESSAGE": "SUCCESS"}, status=201)
+
         except json.decoder.JSONDecodeError :
-            return JsonResponse({'MESSAGE' : 'KEY_ERROR'}, status = 400)
-        
-        return JsonResponse({"MESSAGE" : "SUCCESS"}, status = 201)
+            return JsonResponse({"MESSAGE": "REQUEST_WITHOUT_DATA"}, status=400)
+
+        except KeyError :
+            return JsonResponse({"MESSAGE": "KEY_ERROR"}, status=400)
+
+        except ValidationError as verr :
+            return JsonResponse({"MESSAGE": verr.message}, status=400)
