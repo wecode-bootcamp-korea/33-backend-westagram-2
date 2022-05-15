@@ -13,8 +13,8 @@ class SignupView(View):
         try :
             signup_data = json.loads(request.body)
 
-            email        = signup_data["email"]
-            password     = signup_data["password"]
+            email    = signup_data["email"]
+            password = signup_data["password"]
 
             if not validate_email(email) :
                 raise ValidationError("INVALID_EMAIL")
