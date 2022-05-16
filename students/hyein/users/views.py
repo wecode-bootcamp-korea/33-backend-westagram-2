@@ -8,6 +8,7 @@ from django.views import View
 
 # 내부 module
 from users.models import User
+
 class SignupView(View):
     def post(self, request):
         try:
@@ -37,5 +38,5 @@ class SignupView(View):
             
             return JsonResponse({'Message': 'CREATED'}, status=201)
         
-        except: 
+        except KeyError: 
             return JsonResponse({'Message': 'KEY_ERROR'}, status=400)
