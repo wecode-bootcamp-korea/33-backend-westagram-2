@@ -81,7 +81,7 @@ class LoginView(View):
             if not User.objects.filter(email=email, password=password).exists():
                 return JsonResponse({"messange": "INVALID_PASSWORD"}, status=401)
 
-            return JsonResponse({"message": "Success"}) 
+            return JsonResponse({"message": "Success"}, status=200) 
 
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
