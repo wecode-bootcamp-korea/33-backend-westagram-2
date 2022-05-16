@@ -1,5 +1,6 @@
 import json
 import re
+import hashlib
 
 from django.http import JsonResponse
 from django.views import View
@@ -43,9 +44,6 @@ class SignupView(View):
         except KeyError:
             return JsonResponse({"message": 'KeyError'}, status = 400)  
 
-
-
-
 class LoginView(View):            
     def post(self, request):
         try:
@@ -54,14 +52,14 @@ class LoginView(View):
             user_email = user_data['user_email']
             password   = user_data['password']
 
-            email_check = User.objects.filter(user_email = user_email)
+            email_check = User.objects.filter(user_email = user_email).exists()
             if not email_check :
                 return JsonResponse({"message": "이메일이 잘못되었습니다"}, status=401)
             
-            password_check = User.objects.filter(password = password)
+            password_check = User.objects.filter(password = password).exists()
             if not password_check: 
                 return JsonResponse({"message": "비밀번호가 틀렸습니다."}, status=401)
 
             return JsonResponse({"message": "SUCCESS"}, status=200)    
         except KeyError:
-            return JsonResponse({"message": 'KeyError'}, status = 400)             
+            return JsonResponse({"message": 'KeyError'}, status = 400)                     
