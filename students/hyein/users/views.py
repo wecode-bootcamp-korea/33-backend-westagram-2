@@ -12,7 +12,7 @@ from users.models import User
 class SignupView(View):
     def post(self, request):
         try:
-            data = json.loads(request.body) #json -> python dictionary
+            data = json.loads(request.body) 
             
             EMAIL_VALIDATION    = r'^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
             PASSWORD_VALIDATION = r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&^])[A-Za-z\d$@$!%*#?&]{8,}$'
@@ -40,3 +40,20 @@ class SignupView(View):
         
         except KeyError: 
             return JsonResponse({'Message': 'KEY_ERROR'}, status=400)
+        
+class LoginView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body) 
+            
+            email    = data['email']
+            password = data['password']
+            
+            if User.objects.filter(email = email, password = password).exists():
+                return JsonResponse({'Message': 'SUCCESS'}, status=200)
+            return JsonResponse({'Message': 'INVALID_USER'}, status=401)
+            
+        except KeyError: 
+            return JsonResponse({'Message': 'KEY_ERROR'}, status=400)
+        
+        
