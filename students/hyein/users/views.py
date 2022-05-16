@@ -1,6 +1,7 @@
 # python built-in module
 import json
 import re
+import bcrypt
 
 # 외부 module
 from django.http import JsonResponse
@@ -28,11 +29,13 @@ class SignupView(View):
 
             if User.objects.filter(email = email).exists(): 
                 return JsonResponse({'Message' : 'Email already in use'}, status = 400)
-    
+            
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        
             User.objects.create(
                 name         = data['name'],
                 email        = email,
-                password     = password,
+                password     = hashed_password,
                 phone_number = data['phone_number'],
                 )
             
@@ -52,6 +55,7 @@ class LoginView(View):
             if User.objects.filter(email = email, password = password).exists():
                 return JsonResponse({'Message': 'SUCCESS'}, status=200)
             return JsonResponse({'Message': 'INVALID_USER'}, status=401)
+
             
         except KeyError: 
             return JsonResponse({'Message': 'KEY_ERROR'}, status=400)
