@@ -35,7 +35,7 @@ class SignupView(View):
             return JsonResponse({"MESSAGE": "SUCCESS"}, status=201)
 
         except json.decoder.JSONDecodeError :
-            return JsonResponse({"MESSAGE": "REQUEST_WITHOUT_DATA"}, status=400)
+            return JsonResponse({"MESSAGE": "JSON_DECODE_ERROR"}, status=400)
 
         except KeyError :
             return JsonResponse({"MESSAGE": "KEY_ERROR"}, status=400)
@@ -58,7 +58,7 @@ class LoginView(View):
             return JsonResponse({"MESSAGE": "SUCCESS"}, status=201)
 
         except json.decoder.JSONDecodeError :
-            return JsonResponse({"MESSAGE": "REQUEST_WITHOUT_DATA"}, status=400)
+            return JsonResponse({"MESSAGE": "JSON_DECODE_ERROR"}, status=400)
 
         except KeyError :
             return JsonResponse({"MESSAGE": "KEY_ERROR"}, status=400)
