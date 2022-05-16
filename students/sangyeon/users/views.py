@@ -24,22 +24,20 @@ from .models import User
 
 class SignupView(View):
     def post(self, request):
-        input_data = json.loads(request.body)
-
-        name         = input_data["name"]
-        email        = input_data["email"]
-        password     = input_data["password"]
-        phone_number = input_data["phone_number"]
-
-        EGEX_EMAILR = '[a-zA-Z0-9_-]+@[a-z]+.[a-z]+$'
-        REGEX_PASSWORD = '^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[@#$%^&+=]).*$'
         try:
-            if email == "" or password== "":
-                return JsonResponse({"message": "KEY_ERROR"}, status=400)
+            input_data = json.loads(request.body)
+
+            name         = input_data["name"]
+            email        = input_data["email"]
+            password     = input_data["password"]
+            phone_number = input_data["phone_number"]
+
+            EGEX_EMAILR = '[a-zA-Z0-9_-]+@[a-z]+.[a-z]+$'
+            REGEX_PASSWORD = '^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[@#$%^&+=]).*$'
 
             if not re.match(EGEX_EMAILR, email):
                 return JsonResponse({"maessage":"이메일 형식에 @와 .이 포함되어있지않습니다"}, status=400)
-
+ 
             if not re.match(REGEX_PASSWORD, password):
                 return JsonResponse({"message":"입력해주신 비밀번호 형식에서 8자리이상 문자,숫자,특수문자가 포함되어야합니다"},status=400)
             
