@@ -1,5 +1,6 @@
 import json
 import re
+import hashlib
 
 from django.http import JsonResponse
 from django.views import View
@@ -30,10 +31,13 @@ class SignupView(View):
 
             email_check = User.objects.filter(user_email = user_email).exists()
             if not email_check :
+                hash_password = hashlib.sha256()
+                hash_password.update(password.encode('utf-8'))
+                make_password = hash_password.hexdigest()
                 user = User(
                     user_name    = user_name,
                     user_email   = user_email,
-                    password     = password,
+                    password     = make_password,
                     phone_number = phone_number
                     )
                 user.save()
