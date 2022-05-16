@@ -30,8 +30,7 @@ class SignupView(View):
                 return JsonResponse({"message":"핸드폰번호가 잘못되었습니다"}, status=400)
 
             if not User.objects.filter(user_email = user_email).exists():
-                salt = bcrypt.gensalt()
-                hash_password = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+                hash_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                 user = User(
                     user_name    = user_name,
                     user_email   = user_email,
@@ -54,12 +53,12 @@ class LoginView(View):
             password   = user_data['password']
 
             if not User.objects.filter(user_email = user_email).exists():
-                return JsonResponse({"message": "이메일을 안적으셨습니다"}, status=401)
+                return JsonResponse({"message": "이메일이 틀렸습니다"}, status=401)
             
             if not User.objects.filter(password = password).exists(): 
-                return JsonResponse({"message": "암호를 안적으셨습니다"}, status=401)
+                return JsonResponse({"message": "암호가 틀렸습니다"}, status=401)
 
-            return JsonResponse({"message": "SUCCESS"}, status=200)   
+            return JsonResponse({"message": "SUCCESS"}, status=200)
 
         except KeyError:
-            return JsonResponse({"message": 'KeyError'}, status = 400)                          
+            return JsonResponse({"message": 'KeyError'}, status = 400)
