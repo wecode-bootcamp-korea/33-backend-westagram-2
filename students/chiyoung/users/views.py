@@ -1,4 +1,4 @@
-import json
+import json, bcrypt
 
 from django.views import View
 from django.http import JsonResponse
@@ -15,7 +15,7 @@ class SignupView(View):
 
             email    = signup_data["email"]
             password = signup_data["password"]
-
+            
             if not validate_email(email) :
                 raise ValidationError("INVALID_EMAIL")
 
@@ -28,9 +28,8 @@ class SignupView(View):
             Accounts.objects.create(
                 name         = signup_data["name"],
                 email        = email,
-                password     = password,
-                phone_number = signup_data["phone_number"]
-            )
+                password     = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()),
+                phone_number = signup_data["phone_number"])
 
             return JsonResponse({"MESSAGE": "SUCCESS"}, status=201)
 
