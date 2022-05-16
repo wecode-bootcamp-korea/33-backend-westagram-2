@@ -1,6 +1,6 @@
 import json
 import re
-import hashlib
+import bcrypt
 
 from django.http import JsonResponse
 from django.views import View
@@ -29,15 +29,12 @@ class SignupView(View):
             if not re.match(REGEX_PHONE_NUMBER, phone_number):
                 return JsonResponse({"message":"핸드폰번호가 잘못되었습니다"}, status=400)
 
-            email_check = User.objects.filter(user_email = user_email).exists()
-            if not email_check :
-                hash_password = hashlib.sha256()
-                hash_password.update(password.encode('utf-8'))
-                make_password = hash_password.hexdigest()
+            if not User.objects.filter(user_email = user_email).exists():
+                hash_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
                 user = User(
                     user_name    = user_name,
                     user_email   = user_email,
-                    password     = make_password,
+                    password     = hash_password,
                     phone_number = phone_number
                     )
                 user.save()
@@ -61,6 +58,7 @@ class LoginView(View):
             if not User.objects.filter(password = password).exists(): 
                 return JsonResponse({"message": "비밀번호가 틀렸습니다."}, status=401)
 
-            return JsonResponse({"message": "SUCCESS"}, status=200)    
+            return JsonResponse({"message": "SUCCESS"}, status=200) 
+
         except KeyError:
             return JsonResponse({"message": 'KeyError'}, status = 400)                     
