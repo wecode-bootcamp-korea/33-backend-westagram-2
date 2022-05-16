@@ -1,5 +1,6 @@
 import json
 import re
+import bcrypt
 
 from django.views import View
 from django.http import JsonResponse
@@ -29,7 +30,7 @@ class SignupView(View):
 
             name         = input_data["name"]
             email        = input_data["email"]
-            password     = input_data["password"]
+            hashed_password   = input_data["password"]
             phone_number = input_data["phone_number"]
 
             EGEX_EMAILR = '[a-zA-Z0-9_-]+@[a-z]+.[a-z]+$'
@@ -38,7 +39,7 @@ class SignupView(View):
             if not re.match(EGEX_EMAILR, email):
                 return JsonResponse({"maessage":"이메일 형식에 @와 .이 포함되어있지않습니다"}, status=400)
  
-            if not re.match(REGEX_PASSWORD, password):
+            if not re.match(REGEX_PASSWORD, hashed_password):
                 return JsonResponse({"message":"입력해주신 비밀번호 형식에서 8자리이상 문자,숫자,특수문자가 포함되어야합니다"},status=400)
             
             if User.objects.filter(email=email).exists():
@@ -47,7 +48,7 @@ class SignupView(View):
             User.objects.create(
                 name         = name,
                 email        = email,
-                password     = password,
+                password     = bcrypt.hashpw(hashed_password.encode('UTF-8'), bcrypt.gensalt()).decode("UTF-8"),
                 phone_number = phone_number
             )
             return JsonResponse({"message" : "SUCCESS"}, status=201)
