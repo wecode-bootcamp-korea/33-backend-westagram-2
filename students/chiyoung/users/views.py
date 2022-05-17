@@ -59,7 +59,7 @@ class LoginView(View):
             if not bcrypt.checkpw(password.encode('utf-8'), account.password.encode('utf-8')) :
                 raise ValidationError("INCORRECT_PASSWORD")
 
-            token = jwt.encode( {'account-id': account.id}, settings.SECRET_KEY, settings.ALGORITHM)
+            token = jwt.encode( {'account_id': account.id}, settings.SECRET_KEY, settings.ALGORITHM)
 
             return JsonResponse({"TOKEN": token}, status=201)
 
