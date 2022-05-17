@@ -1,5 +1,6 @@
 import json
 import re
+import bcrypt
 
 from django.views import View
 from django.http import JsonResponse
@@ -43,11 +44,13 @@ class SignupView(View):
             
             if User.objects.filter(email=email).exists():
                 return JsonResponse({"message":"이미 회원가입된 이메일입니다."},status=400)
+            
+            hashed_password = bcrypt.hashpw(password.encode('UTF-8'), bcrypt.gensalt()).decode("UTF-8")
 
             User.objects.create(
                 name         = name,
                 email        = email,
-                password     = password,
+                password     = hashed_password,
                 phone_number = phone_number
             )
             return JsonResponse({"message" : "SUCCESS"}, status=201)
