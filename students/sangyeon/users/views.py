@@ -4,8 +4,8 @@ import bcrypt
 import jwt
 
 from django.views import View
-from django.http import JsonResponse
-from django.conf import settings
+from django.http  import JsonResponse
+from django.conf  import settings
 
 from .models import User
 
@@ -37,7 +37,7 @@ class SignupView(View):
             password     = input_data["password"]
             phone_number = input_data["phone_number"]
 
-            REGEX_EMAILR   = '[a-zA-Z0-9_-]+@[a-z]+.[a-z]+$'
+            REGEX_EMAIL   = '[a-zA-Z0-9_-]+@[a-z]+.[a-z]+$'
             REGEX_PASSWORD = '^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[@#$%!^&+=]).*$'
 
             if not re.match(EGEX_EMAILR, email):
@@ -82,8 +82,8 @@ class LoginView(View):
             email        = input_data["email"]
             password     = input_data["password"]
 
-            if not User.objects.filter(email=email).exists():
-                return JsonResponse({"message": "INVALID_USER"},status=401)
+            # if not User.objects.filter(email=email).exists():
+            #     return JsonResponse({"message": "INVALID_USER"},status=401)
 
             user = User.objects.get(email=email)
             if not bcrypt.checkpw(password.encode("UTF-8"), user.password.encode("UTF-8")):
@@ -94,5 +94,6 @@ class LoginView(View):
 
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
-
-            
+        
+        except User.DoesNotExist:
+            return JsonResponse({"message": "INVALID_USER"},status=401)
