@@ -1,8 +1,9 @@
-import json, bcrypt
+import json, bcrypt, jwt
 
 from django.views import View
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
+from django.conf import settings
 
 from .models import Accounts
 from .validators import validate_email, validate_password
@@ -12,9 +13,8 @@ class SignupView(View):
 
         try :
             signup_data = json.loads(request.body)
-
-            email    = signup_data["email"]
-            password = signup_data["password"]
+            email       = signup_data["email"]
+            password    = signup_data["password"]
             
             if not validate_email(email) :
                 raise ValidationError("INVALID_EMAIL")
@@ -49,14 +49,19 @@ class LoginView(View):
         
         try :
             login_data = json.loads(request.body)
+            email      = login_data["email"]
+            password   = login_data["password"]
 
-            email    = login_data["email"]
-            password = login_data["password"]
-
-            if not Accounts.objects.filter(email=email, password=password).exists() :
+            if not Accounts.objects.filter(email=email).exists() :
                 raise ValidationError("INVALID_USER")
 
-            return JsonResponse({"MESSAGE": "SUCCESS"}, status=201)
+            account = Accounts.objects.get(email=email)
+            if not bcrypt.checkpw(password.encode('utf-8'), account.password.encode('utf-8')) :
+                raise ValidationError("INCORRECT_PASSWORD")
+
+            token = jwt.encode( {'account_id': account.id}, settings.SECRET_KEY, settings.ALGORITHM)
+
+            return JsonResponse({"TOKEN": token}, status=201)
 
         except json.decoder.JSONDecodeError :
             return JsonResponse({"MESSAGE": "JSON_DECODE_ERROR"}, status=400)
