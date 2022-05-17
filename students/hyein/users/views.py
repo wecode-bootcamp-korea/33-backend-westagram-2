@@ -1,7 +1,5 @@
 # python built-in module
-import json
-import re
-import bcrypt
+import json, re, bcrypt, jwt
 
 # 외부 module
 from django.http import JsonResponse
@@ -9,6 +7,7 @@ from django.views import View
 
 # 내부 module
 from users.models import User
+from westagram.settings  import SECRET_KEY, ALGORITHM
 
 class SignupView(View):
     def post(self, request):
@@ -52,10 +51,18 @@ class LoginView(View):
             email    = data['email']
             password = data['password']
             
-            if User.objects.filter(email = email, password = password).exists():
-                return JsonResponse({'Message': 'SUCCESS'}, status=200)
-            return JsonResponse({'Message': 'INVALID_USER'}, status=401)
+            if User.objects.filter(email = email).exists():
+                user = User.objects.get(email=email)
+                
+                if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')) == True:
+                    token = jwt.encode({'id' : user.id}, SECRET_KEY, ALGORITHM)
+                    return JsonResponse({'Message': 'SUCCESS', 'access_token': token}, status=200)
+                
+                else:
+                    return JsonResponse({'Message': 'Invalid Password'}, status=401)
 
+            else:
+                return JsonResponse({'Message': 'Invalid Email'}, status=401)
             
         except KeyError: 
             return JsonResponse({'Message': 'KEY_ERROR'}, status=400)
