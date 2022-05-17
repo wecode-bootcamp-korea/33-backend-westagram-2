@@ -1,12 +1,9 @@
-# python built-in module
 import json, re, bcrypt, jwt
 
-# 외부 module
 from django.http import JsonResponse
 from django.views import View
 from django.conf import settings
 
-# 내부 module
 from users.models import User
 
 class SignupView(View):
@@ -51,20 +48,19 @@ class LoginView(View):
             email    = data['email']
             password = data['password']
             
-            if User.objects.filter(email = email).exists():
-                user = User.objects.get(email = email)
-                
-                if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')) == True:
-                    token = jwt.encode({'id' : user.id}, settings.SECRET_KEY, settings.ALGORITHM)
-                    return JsonResponse({'Message': 'SUCCESS', 'access_token': token}, status=200)
-                
-                else:
-                    return JsonResponse({'Message': 'Invalid Password'}, status=401)
+            user = User.objects.get(email = email)
+            
+            if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')) == False:
+                return JsonResponse({'Message': 'Invalid Password'}, status=401)
 
-            else:
-                return JsonResponse({'Message': 'Invalid Email'}, status=401)
+            access_token = jwt.encode({'id' : user.id}, settings.SECRET_KEY, settings.ALGORITHM)
+            return JsonResponse({
+                "message"      : "success",
+                "access_token" : access_token
+            }, status=200)
             
         except KeyError: 
             return JsonResponse({'Message': 'KEY_ERROR'}, status=400)
-        
+        except User.DoesNotExist:
+            return JsonResponse({'Message': 'Invalid Email'}, status=400)
         
