@@ -1,11 +1,15 @@
 import json
 import re
 import bcrypt
+import jwt
 
 from django.views import View
-from django.http import JsonResponse
+from django.http  import JsonResponse
+from django.conf  import settings
 
 from .models import User
+
+
 """
 1. 회원가입을 위한 View 를 작성해야합니다. 사용자 정보는 이름, 이메일, 비밀번호, 연락처(휴대폰), 그 외 개인정보를 포함한다.
 
@@ -33,8 +37,8 @@ class SignupView(View):
             password     = input_data["password"]
             phone_number = input_data["phone_number"]
 
-            EGEX_EMAILR = '[a-zA-Z0-9_-]+@[a-z]+.[a-z]+$'
-            REGEX_PASSWORD = '^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[@#$%^&+=]).*$'
+            REGEX_EMAIL   = '[a-zA-Z0-9_-]+@[a-z]+.[a-z]+$'
+            REGEX_PASSWORD = '^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[@#$%!^&+=]).*$'
 
             if not re.match(EGEX_EMAILR, email):
                 return JsonResponse({"maessage":"이메일 형식에 @와 .이 포함되어있지않습니다"}, status=400)
@@ -78,15 +82,18 @@ class LoginView(View):
             email        = input_data["email"]
             password     = input_data["password"]
 
-            if not User.objects.filter(email=email).exists():
-                return JsonResponse({"message": "INVALID_USER"},status=401)
+            # if not User.objects.filter(email=email).exists():
+            #     return JsonResponse({"message": "INVALID_USER"},status=401)
 
-            if not User.objects.filter(email=email, password=password).exists():
+            user = User.objects.get(email=email)
+            if not bcrypt.checkpw(password.encode("UTF-8"), user.password.encode("UTF-8")):
                 return JsonResponse({"messange": "INVALID_PASSWORD"}, status=401)
 
-            return JsonResponse({"message": "Success"}, status=200) 
+            access_token = jwt.encode({"id" : user.id}, settings.SECRET_KEY, settings.ALGORITHM)
+            return JsonResponse({"access_token": access_token}, status=200) 
 
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
-
-            
+        
+        except User.DoesNotExist:
+            return JsonResponse({"message": "INVALID_USER"},status=401)
