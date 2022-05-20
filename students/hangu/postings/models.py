@@ -24,8 +24,8 @@ class Comment(models.Model):
         db_table = 'comments'
 
 class Like(models.Model):
-    posting   = models.ForeignKey(Posting, on_delete=models.CASCADE)
-    like_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    posting   = models.ForeignKey(Posting, related_name='posting', on_delete=models.CASCADE)
+    like_user = models.ForeignKey(User, related_name='like_user', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'likes'

@@ -77,13 +77,16 @@ class CommentsView(View):
                 return JsonResponse({'message':'댓글이 없습니다'}, status = 400)
 
             comment_list = [{
-                        '댓글 작성자 id': comment.user.id,
+                        '댓글 작성자 id' : comment.user.id,
                         '댓글 작성자 이름': comment.user.user_name,
-                        '댓글 내용'    : comment.content,
+                        '댓글 내용'     : comment.content,
                         '댓글 작성 시간' : comment.created_at,
                     } for comment in comments]
 
-            return JsonResponse({'message':'SUCCESS', 'comments':comment_list}, status = 200)
+            return JsonResponse({
+                'message' : 'SUCCESS',
+                'comments': comment_list
+                }, status = 200)
         except KeyError:
             return JsonResponse({"message": 'KeyError'}, status=401)
 
@@ -96,7 +99,7 @@ class LikeCountView(View):
             if not like_users.exists():
                 likes = Like(
                     like_user_id = request.user.id,
-                    posting_id = posting_id,
+                    posting_id   = posting_id,
                 )
                 likes.save()
                 return JsonResponse({'message':'좋아요가 등록되었습니다'}, status = 200)
@@ -112,7 +115,15 @@ class LikeCountView(View):
             likes = Like.objects.filter(posting_id = posting_id)
 
             like_count= likes.count()
-
-            return JsonResponse({'like_counting':like_count}, status=200)
+            like_list = [{
+                    'user_id'   : like.like_user.id,
+                    'user_name' : like.like_user.user_name,
+                    'user_email': like.like_user.user_email,
+                } for like in likes]
+                
+            return JsonResponse({
+                'like_counting': like_count,
+                'follow_list'  : like_list
+                }, status=200)
         except KeyError:
             return JsonResponse({"message": 'KeyError'}, status=401)

@@ -1,10 +1,12 @@
 import json, re, bcrypt, jwt
+from django import views
 
 from django.http import JsonResponse
 from django.views import View
 from django.conf import settings
 
-from .models import User
+from .models import User, FollowFollowing
+from users.utils import token_reader
 
 
 class SignupView(View):
@@ -67,3 +69,39 @@ class LoginView(View):
             return JsonResponse({"message": 'KEY_ERROR'}, status = 400)
         except User.DoesNotExist:
             return JsonResponse({"message": "INVALID_EMAIL"}, status=401)
+
+class FollowView(View):
+    @token_reader
+    def post(self, request, user_id):
+        try:
+            if not FollowFollowing.objects.filter(
+                follow_user_id    = request.user.id,
+                following_user_id = user_id
+                ):
+                FollowFollowing.objects.create(
+                    follow_user_id    = request.user.id,
+                    following_user_id = user_id,
+                )
+                return JsonResponse({'message':'팔로우가 되었습니다.'}, status=200)
+            return  JsonResponse({'message':'언팔로우가 되었습니다.'}, status=200)   
+        except KeyError:
+            return JsonResponse({"message": 'KeyError'}, status=401)   
+
+    @token_reader
+    def get(self, request, user_id):
+        try:
+            followings = FollowFollowing.objects.filter(follow_user_id = request.user)
+
+            follow_count= followings.count()
+            follow_list = [{
+                    'user_id'   : following.following_user.id,
+                    'user_name' : following.following_user.user_name,
+                    'user_email': following.following_user.user_email,
+                } for following in followings]
+
+            return JsonResponse({
+                'follow_count': follow_count,
+                'follow_list' : follow_list
+                }, status=200)
+        except KeyError:
+            return JsonResponse({"message": 'KeyError'}, status=401)
