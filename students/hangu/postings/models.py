@@ -22,3 +22,13 @@ class Comment(models.Model):
     
     class Meta:
         db_table = 'comments'
+
+class Like(models.Model):
+    posting   = models.ForeignKey(Posting, on_delete=models.CASCADE)
+    like_user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'likes'
+
+
+

@@ -4,7 +4,7 @@ from django.views import View
 from django.http import JsonResponse
 from django.conf import settings
 
-from .models import Posting, Comment
+from .models import Like, Posting, Comment
 from users.utils import token_reader
 
 class PostingView(View):
@@ -56,17 +56,15 @@ class CommentsView(View):
             comment_data = json.loads(request.body)
             
             content    = comment_data["content"]
-            user_id    = request.user
-            posting_id = posting_id
 
             comments = Comment(
                 content    = content,
-                user_id    = user_id.id,
+                user_id    = request.user.id,
                 posting_id = posting_id,
                 )
             comments.save()
 
-            return JsonResponse({'message':'정상적으로 저장되었습니다'}, status = 200)    
+            return JsonResponse({'message':'comment가 정상적으로 저장되었습니다'}, status = 200)    
         except KeyError:
             return JsonResponse({"message": 'KeyError'}, status=401)
 
@@ -88,3 +86,26 @@ class CommentsView(View):
             return JsonResponse({'message':'SUCCESS', 'comments':comment_list}, status = 200)
         except KeyError:
             return JsonResponse({"message": 'KeyError'}, status=401)
+
+
+class LikeCountView(View):
+    @token_reader
+    def post(self, request, posting_id):
+        like_users = Like.objects.filter(posting_id=posting_id, like_user_id = request.user.id)
+        if not like_users.exists():
+            likes = Like(
+                like_user_id = request.user.id,
+                posting_id = posting_id,
+            )
+            likes.save()
+            return JsonResponse({'message':'좋아요가 등록되었습니다'}, status = 200)
+        like_user = Like.objects.get(like_user_id = request.user.id)
+        like_user.delete()
+        return JsonResponse({'message':'좋아요를 취소하셨습니다.'}, status = 400)   
+
+    def get(self, request, posting_id):
+        likes = Like.objects.filter(posting_id = posting_id)
+
+        like_count= likes.count()
+
+        return JsonResponse({'like_counting':like_count}, status=200)
