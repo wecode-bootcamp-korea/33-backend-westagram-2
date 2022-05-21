@@ -12,6 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = SECRET_KEY
 
 ALGORITHM = ALGORITHM 
+
 DEBUG = True
 
 ALLOWED_HOSTS = [ '*' ]
@@ -26,6 +27,7 @@ INSTALLED_APPS = [
     'corsheaders', # 추가
     'django_extensions', # 추가
     'users',
+    'postings',
 ]
 
 MIDDLEWARE = [
